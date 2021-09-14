@@ -10,9 +10,10 @@ router.get('/', (req, res) => {
 });
 
 // Register Route
-router.post('/', (req, res) => {
+router.post('/token', (req, res) => {
   jwt.verify(req.token, process.env.JWT, (err, authData) => {
     if (err) {
+      console.log(err);
       res.status(403).json({ msg: 'Access Forbidden' });
     } else {
       res.send(authData);

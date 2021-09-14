@@ -52,7 +52,7 @@ router.post('/register', (req, res) => {
 // Login Route
 router.post('/login', (req, res) => {
   if (!req.is('application/json')) {
-    res.json({ msg: 'Wrong content-type' });
+    res.status(400).json({ msg: 'Wrong content-type' });
   } else {
     const { name, password } = req.body;
     // Find existing user to log in
@@ -65,16 +65,16 @@ router.post('/login', (req, res) => {
           // Correct password
           if (result) {
             const token = jwt.sign({ name: user.name, email: user.email }, process.env.JWT, { expiresIn: '1800s' });
-            res.json(token);
+            res.status(200).json({ token, name });
           }
           // Wrong password
           if (!result) {
-            res.json({ msg: 'Wrong Password!' });
+            res.status(401).json({ msg: 'Wrong Password!' });
           }
         });
         // User not found
       } else {
-        res.json({ msg: 'User not found!' });
+        res.status(404).json({ msg: 'User not found!' });
       }
     });
   }
