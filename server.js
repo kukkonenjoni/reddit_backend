@@ -12,7 +12,7 @@ app.use(cors());
 app.options('*', cors()); // enable pre-flight
 
 // Connect to mongoDB
-mongoose.connect(process.env.DB, (err) => {
+mongoose.connect(process.env.MONGO_URI, (err) => {
   if (err) { console.log(err); }
   console.log('Succesfully connected to mongoDB');
 });
@@ -26,4 +26,4 @@ app.use('/api/authentication/', require('./routes/api/authentication'));
 app.use('/api/', isLogged, require('./routes/api/dashboard'));
 
 // Server Listen
-app.listen(process.env.PORT);
+app.listen(process.env.PORT || 5000);
