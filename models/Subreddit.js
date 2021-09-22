@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
@@ -7,7 +8,7 @@ const SubredditSchema = new Schema({
     type: String,
     required: true,
   },
-  descriptin: {
+  description: {
     type: String,
     required: true,
   },
@@ -28,7 +29,9 @@ const SubredditSchema = new Schema({
     type: Schema.Types.ObjectId, ref: 'Post',
   }],
   admins: [{
-    type: Schema.Types.ObjectId, ref: 'User',
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    default: this.createdBy,
   }],
 });
 
@@ -36,6 +39,8 @@ SubredditSchema.virtual('url')
   .get(function () {
     return `/r/${this.name}`;
   });
+
+SubredditSchema.set('toJSON', { getters: true, virtuals: true });
 
 const Subreddit = mongoose.model('Subreddit', SubredditSchema);
 module.exports = Subreddit;

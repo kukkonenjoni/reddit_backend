@@ -1,8 +1,10 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../../models/User');
+const Subreddit = require('../../models/Subreddit');
 require('dotenv').config();
 
 const router = express.Router();
@@ -25,21 +27,28 @@ router.post('/register', (req, res) => {
           res.json({ msg: 'User already exists' });
         }
         if (!obj) {
-          const newUser = new User({
-            name,
-            email,
-            password,
-          });
-          // Hash Password
-          bcrypt.hash(newUser.password, 10, (err1, result) => {
-            if (err1) {
-              throw err1;
+          User.findOne({ email }, (err2, obj2) => {
+            if (err2) throw err;
+            if (obj2) {
+              res.json({ msg: 'Email already in use' });
+            } if (!obj2) {
+              const newUser = new User({
+                name,
+                email,
+                password,
+              });
+              bcrypt.hash(newUser.password, 10, (err1, result) => {
+                if (err1) {
+                  throw err1;
+                }
+                newUser.password = result;
+                newUser.save((err3) => {
+                  if (err3) throw err;
+                  console.log(newUser);
+                  res.json({ msg: 'New account created!' });
+                });
+              });
             }
-            newUser.password = result;
-            newUser.save((err2) => {
-              if (err2) throw err;
-              res.json({ msg: 'New account created!' });
-            });
           });
         }
       });
@@ -64,7 +73,7 @@ router.post('/login', (req, res) => {
           if (err2) throw err;
           // Correct password
           if (result) {
-            const token = jwt.sign({ name: user.name, email: user.email }, process.env.JWT, { expiresIn: '1800s' });
+            const token = jwt.sign({ name: user.name, email: user.email, id: user._id }, process.env.JWT, { expiresIn: '1800s' });
             res.status(200).json({ token, name });
           }
           // Wrong password
@@ -78,6 +87,26 @@ router.post('/login', (req, res) => {
       }
     });
   }
+});
+router.post('/createcommunity', (req, res) => {
+  console.log(req.body);
+  User.findOne({ _id: req.body.createdBy }, (err, obj) => {
+    if (err) throw err;
+    if (obj) {
+      console.log(obj);
+      const newSubreddit = new Subreddit({
+        name: req.body.name,
+        description: req.body.description,
+        createdBy: req.body.createdBy,
+      });
+      newSubreddit.save((err2) => {
+        if (err2) throw err;
+        res.json({ msg: 'New subreddit created!' });
+      });
+    } else {
+      res.json({ msg: 'test' });
+    }
+  });
 });
 
 module.exports = router;

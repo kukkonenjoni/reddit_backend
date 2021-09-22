@@ -19,8 +19,10 @@ const UserSchema = new Schema({
 
 UserSchema.virtual('url')
   .get(function () {
-    return `/r/${this.name}`;
+    return `/u/${this.name}`;
   });
+
+UserSchema.set('toJSON', { getters: true, virtuals: true });
 
 const User = mongoose.model('User', UserSchema);
 module.exports = User;

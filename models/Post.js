@@ -1,4 +1,6 @@
+/* eslint-disable func-names */
 const mongoose = require('mongoose');
+const autoPopulateComments = require('../middleware/AutoPopulateComments');
 
 const { Schema } = mongoose;
 
@@ -24,15 +26,23 @@ const PostSchema = new Schema({
   upvotes: [
     { type: Schema.Types.ObjectId, ref: 'User' },
   ],
+  subreddit: {
+    type: Schema.Types.ObjectId, ref: 'Subreddit',
+  },
   comments: [{
     type: Schema.Types.ObjectId, ref: 'Comment',
   }],
 });
 
-PostSchema.virtual('url')
+PostSchema.virtual('formatted_title')
   .get(function () {
-    return `/posts/${this.title}`;
+    const title = this.title.replace(/_/g, ' ');
+    return title;
   });
+
+PostSchema.pre('findOne', autoPopulateComments).pre('find', autoPopulateComments);
+
+PostSchema.set('toJSON', { getters: true, virtuals: true });
 
 const Post = mongoose.model('Post', PostSchema);
 module.exports = Post;
