@@ -14,7 +14,11 @@ const router = express.Router();
 // <<<<<<<<<<<<<<<<<<<<<<< GET ROUTES Start >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 router.get('/r/:subreddit/comments/:post', async (req, res) => {
   const { post } = req.params;
-  const query = await Post.findOne({ title: post });
+  const query = await Post.findOne({ title: post })
+    .populate({
+      path: 'createdBy', model: 'User', select: { name: 1 },
+    });
+  query.populate('createdBy');
   res.send(query);
 });
 
@@ -67,7 +71,7 @@ router.get('/', (req, res) => {
 });
 
 // <<<<<<<<<<<<<<<<<<<<<<< POST ROUTES Start >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// Check if token is valid and then send auth data for frontend global state to use
+// Comment to a specific comment
 router.post('/r/:subreddit/comments/:post/:comment', async (req, res) => {
   const { content, createdBy } = req.body;
   const post = await Post.findOne({ title: req.params.post });
@@ -86,7 +90,7 @@ router.post('/r/:subreddit/comments/:post/:comment', async (req, res) => {
   comment.save();
   res.send(comment);
 });
-
+// Check if token is valid and then send auth data for frontend global state to use
 router.post('/verifytoken', ParseToken, (req, res) => {
   jwt.verify(req.token, process.env.JWT, (err, authData) => {
     if (err) {
