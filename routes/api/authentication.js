@@ -74,7 +74,7 @@ router.post('/login', (req, res) => {
           // Correct password
           if (result) {
             const token = jwt.sign({ name: user.name, email: user.email, id: user._id }, process.env.JWT, { expiresIn: '1800s' });
-            res.status(200).json({ token, name });
+            res.status(200).json({ token, user: user.name, id: user.id });
           }
           // Wrong password
           if (!result) {
@@ -87,26 +87,6 @@ router.post('/login', (req, res) => {
       }
     });
   }
-});
-router.post('/createcommunity', (req, res) => {
-  console.log(req.body);
-  User.findOne({ _id: req.body.createdBy }, (err, obj) => {
-    if (err) throw err;
-    if (obj) {
-      console.log(obj);
-      const newSubreddit = new Subreddit({
-        name: req.body.name,
-        description: req.body.description,
-        createdBy: req.body.createdBy,
-      });
-      newSubreddit.save((err2) => {
-        if (err2) throw err;
-        res.json({ msg: 'New subreddit created!' });
-      });
-    } else {
-      res.json({ msg: 'test' });
-    }
-  });
 });
 
 module.exports = router;

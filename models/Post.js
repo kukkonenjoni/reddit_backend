@@ -26,6 +26,9 @@ const PostSchema = new Schema({
   upvotes: [
     { type: Schema.Types.ObjectId, ref: 'User' },
   ],
+  downvotes: [
+    { type: Schema.Types.ObjectId, ref: 'User' },
+  ],
   subreddit: {
     type: Schema.Types.ObjectId, ref: 'Subreddit',
   },
